@@ -1,0 +1,125 @@
+package ch.unisg.ics.interactions.hmas.bindings.protocols.http;
+
+import ch.unisg.ics.interactions.hmas.bindings.AbstractAction;
+import ch.unisg.ics.interactions.hmas.bindings.Input;
+import ch.unisg.ics.interactions.hmas.bindings.Output;
+import ch.unisg.ics.interactions.hmas.interaction.signifiers.Form;
+import org.apache.commons.io.IOUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.HttpClients;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class HttpAction extends AbstractAction {
+
+  private final static Logger LOGGER = Logger.getLogger(HttpAction.class.getCanonicalName());
+
+  private final BasicClassicHttpRequest request;
+
+  public HttpAction(Form form, String operationType) {
+    super(form, operationType);
+    this.request = createHttpRequest();
+  }
+
+  public HttpAction(Form form) {
+    super(form);
+    this.request = createHttpRequest();
+  }
+
+  private BasicClassicHttpRequest createHttpRequest() {
+    BasicClassicHttpRequest httpRequest = new BasicClassicHttpRequest(this.getMethodName(), this.form.getTarget());
+    httpRequest.addHeader(HttpHeaders.CONTENT_TYPE, this.form.getContentType());
+    return httpRequest;
+  }
+
+  @Override
+  public HttpAction setActorId(String actorId) {
+    super.setActorId(actorId);
+    this.request.setHeader("X-Agent-WebID", this.actorId.get());
+
+    return this;
+  }
+
+  @Override
+  public HttpAction setInput(Input input) {
+    super.setInput(input);
+    this.request.setEntity(new StringEntity(String.valueOf(input.getData()),
+            ContentType.create(form.getContentType())));
+
+    return this;
+  }
+
+  @Override
+  public Output execute() throws IOException {
+    HttpClient client = HttpClients.createDefault();
+    HttpUriRequest uriRequest = (HttpUriRequest) request;
+    HttpResponse response = client.execute(uriRequest);
+    return new HttpOutput((ClassicHttpResponse) response);
+  }
+
+  public HttpAction setHeader(String key, String value) {
+    if ("X-Agent-WebID".equals(key)) {
+      return this.setActorId(value);
+    } else {
+      this.request.setHeader(key, value);
+    }
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("[Http Request] Method: " + request.getMethod());
+    try {
+      builder.append(", Target: " + request.getUri().toString());
+      for (Header header : request.getHeaders()) {
+        builder.append(", " + header.getName() + ": " + header.getValue());
+      }
+      if (request.getEntity() != null) {
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(request.getEntity().getContent(), writer, StandardCharsets.UTF_8.name());
+        builder.append(", Payload: " + writer);
+      }
+    } catch (UnsupportedOperationException | IOException | URISyntaxException e) {
+      LOGGER.log(Level.WARNING, e.getMessage());
+    }
+    return builder.toString();
+  }
+
+  private String getMethodName() {
+    // Try to get method name from form.getTarget()
+    String methodName = form.getMethodName(form.getTarget()).orElse(null);
+
+    // If method name is not present, try to get it from form.getMethodName(contentType)
+    if (methodName == null && operationType.isPresent()) {
+      methodName = form.getMethodName(operationType.get()).orElse(null);
+    }
+
+    // If method name is still not present, raise an exception
+    if (methodName == null) {
+      throw new IllegalArgumentException("MethodName cannot be determined");
+    }
+
+    return methodName;
+  }
+
+
+  public BasicClassicHttpRequest getRequest() {
+    return this.request;
+  }
+}
+
+

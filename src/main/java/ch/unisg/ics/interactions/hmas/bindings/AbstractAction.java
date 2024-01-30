@@ -13,8 +13,6 @@ public abstract class AbstractAction implements Action {
 
   protected Optional<String> actorId;
 
-  protected Optional<Input> input;
-
   public AbstractAction(Form form) {
     this(form, null);
   }
@@ -23,7 +21,6 @@ public abstract class AbstractAction implements Action {
     this.form = Objects.requireNonNull(form, "Form must not be null");
     this.operationType = Optional.ofNullable(operationType);
     this.actorId = Optional.empty();
-    this.input = Optional.empty();
   }
 
   @Override
@@ -42,19 +39,8 @@ public abstract class AbstractAction implements Action {
   }
 
   @Override
-  public Optional<Input> getInput() {
-    return this.input;
-  }
-
-  @Override
   public Action setActorId(String actorId) {
     this.actorId = Optional.of(actorId);
-    return this;
-  }
-
-  @Override
-  public Action setInput(Input input) {
-    this.input = Optional.of(input);
     return this;
   }
 

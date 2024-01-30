@@ -2,9 +2,10 @@ package ch.unisg.ics.interactions.hmas.bindings;
 
 import ch.unisg.ics.interactions.hmas.interaction.signifiers.Form;
 
+import java.io.IOException;
 import java.util.Optional;
 
-public interface Action extends Behavior {
+public interface Action {
 
   Form getForm();
 
@@ -14,8 +15,8 @@ public interface Action extends Behavior {
 
   Optional<String> getOperationType();
 
-  Optional<Input> getInput();
+  ActionExecution execute() throws IOException;
 
-  Action setInput(Input input);
+  ActionExecution execute(Input input) throws IOException;
 
 }

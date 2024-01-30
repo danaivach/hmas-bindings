@@ -1,17 +1,18 @@
 package ch.unisg.ics.interactions.hmas.bindings.protocols.http;
 
 import ch.unisg.ics.interactions.hmas.bindings.AbstractAction;
+import ch.unisg.ics.interactions.hmas.bindings.ActionExecution;
 import ch.unisg.ics.interactions.hmas.bindings.Input;
-import ch.unisg.ics.interactions.hmas.bindings.Output;
 import ch.unisg.ics.interactions.hmas.interaction.signifiers.Form;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClients;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,21 +56,49 @@ public class HttpAction extends AbstractAction {
   }
 
   @Override
-  public HttpAction setInput(Input input) {
-    super.setInput(input);
+  public ActionExecution execute(Input input) throws IOException {
     this.request.setEntity(new StringEntity(String.valueOf(input.getData()),
             ContentType.create(form.getContentType())));
-
-    return this;
+    return this.execute();
   }
 
   @Override
-  public Output execute() throws IOException {
+  public ActionExecution execute() throws IOException {
     HttpClient client = HttpClients.createDefault();
     HttpUriRequest uriRequest = (HttpUriRequest) request;
-    HttpResponse response = client.execute(uriRequest);
-    return new HttpOutput((ClassicHttpResponse) response);
+    BasicClassicHttpResponse response = (BasicClassicHttpResponse) client.execute(uriRequest);
+
+    return getHttpActionExection(response);
   }
+
+  private HttpActionExecution getHttpActionExection(BasicClassicHttpResponse response) {
+    Optional<String> inputData = Optional.empty();
+    Optional<String> outputData = Optional.empty();
+
+    if (this.request.getEntity() != null) {
+      try {
+        inputData = Optional.of(EntityUtils.toString(this.request.getEntity(), StandardCharsets.UTF_8));
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
+    }
+
+    if (response.getEntity() != null) {
+      try {
+        outputData = Optional.of(EntityUtils.toString(this.request.getEntity(), StandardCharsets.UTF_8));
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
+    }
+
+    return new HttpActionExecution(this, response, inputData, outputData);
+
+  }
+
 
   public HttpAction setHeader(String key, String value) {
     if ("X-Agent-WebID".equals(key)) {
@@ -115,7 +145,6 @@ public class HttpAction extends AbstractAction {
 
     return methodName;
   }
-
 
   public BasicClassicHttpRequest getRequest() {
     return this.request;

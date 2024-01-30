@@ -6,9 +6,11 @@ import ch.unisg.ics.interactions.hmas.bindings.Input;
 import ch.unisg.ics.interactions.hmas.core.vocabularies.CORE;
 import ch.unisg.ics.interactions.hmas.interaction.signifiers.Form;
 import ch.unisg.ics.interactions.hmas.interaction.signifiers.InputSpecification;
+import ch.unisg.ics.interactions.hmas.interaction.signifiers.OutputSpecification;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +36,7 @@ public class PayloadBindingTest {
 
     InputSpecification registerInputSpec = new InputSpecification.Builder()
             .setRequiredSemanticTypes(Set.of(CORE.AGENT.stringValue()))
-            .setQualifiedValueShape("http://example.org/gripperJointShape")
+            .setQualifiedValueShape("http://example.org/agent-details")
             .setQualifiedMinCount(1)
             .setQualifiedMaxCount(1)
             .setInput(new InputSpecification.Builder()
@@ -45,6 +47,19 @@ public class PayloadBindingTest {
                     .build())
             .setInput(new InputSpecification.Builder()
                     .setPath("http://xmlns.com/foaf/0.1/mbox")
+                    .setDataType("http://www.w3.org/2001/XMLSchema#string")
+                    .setMinCount(1)
+                    .setMaxCount(1)
+                    .build())
+            .build();
+
+    OutputSpecification registerOutputSpec = new OutputSpecification.Builder()
+            .setRequiredSemanticTypes(Set.of(CORE.AGENT.stringValue()))
+            .setQualifiedValueShape("http://example.org/registered-agent-details")
+            .setQualifiedMinCount(1)
+            .setQualifiedMaxCount(1)
+            .setOutput(new OutputSpecification.Builder()
+                    .setPath("http://xmlns.com/foaf/0.1/account")
                     .setDataType("http://www.w3.org/2001/XMLSchema#string")
                     .setMinCount(1)
                     .setMaxCount(1)
@@ -94,12 +109,19 @@ public class PayloadBindingTest {
     assertEquals(1, registerBinding.getSupportedMediaTypes().size());
     assertTrue(registerBinding.getSupportedMediaTypes().contains("application/xarm+json"));
 
+    String expectedInputData = "{\"name\":\"Danai\",\"email\":\"danaivach@example.org\"}";
     HashMap<String, String> agentDetails = new HashMap<>();
     agentDetails.put("http://xmlns.com/foaf/0.1/name", "Danai");
     agentDetails.put("http://xmlns.com/foaf/0.1/mbox", "danaivach@example.org");
     Input boundRegisterInput = registerBinding.bind(registerInputSpec, agentDetails);
     assertEquals(registerInputSpec, boundRegisterInput.getInputSpecification());
-    assertEquals("{\"name\":\"Danai\",\"email\":\"danaivach@example.org\"}", boundRegisterInput.getData());
+    assertEquals(expectedInputData, boundRegisterInput.getData());
+
+    String expectedValue = "1200A";
+    String outputData = "{\"account\":\"1200A\"}";
+    Map<String, Object> unBoundRegisterOutput = (Map<String, Object>) registerBinding.unbind(registerOutputSpec, outputData);
+    String actualValue = (String) unBoundRegisterOutput.get("http://xmlns.com/foaf/0.1/account");
+    assertEquals(expectedValue, actualValue);
   }
 
   @Test

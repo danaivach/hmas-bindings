@@ -39,6 +39,7 @@ public class ProtocolBindings {
 
   }
 
+  @SuppressWarnings("deprecation")
   public static void registerProtocolBinding(String bindingClass) throws BindingNotRegisteredException {
     for (Map.Entry<String, ProtocolBinding> entry : registeredProtocolBindings.entrySet()) {
       if (entry.getValue().getClass().getName().equals(bindingClass)) {

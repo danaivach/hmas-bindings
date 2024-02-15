@@ -27,6 +27,7 @@ public final class PayloadBindings {
     return registeredPayloadBindings.get(contentType);
   }
 
+  @SuppressWarnings("deprecation")
   public static void registerPayloadBinding(String bindingClass) throws BindingNotRegisteredException {
 
     for (Map.Entry<String, PayloadBinding> entry : registeredPayloadBindings.entrySet()) {

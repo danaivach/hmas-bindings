@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PayloadBindingTest {
 
+  @SuppressWarnings("unchecked")
   @Test
   void testBindApplicationJsonBinding() {
 
@@ -70,29 +71,6 @@ public class PayloadBindingTest {
             .setMethodName("POST")
             .setContentType("application/xarm+json")
             .build();
-
-    /*
-    InputSpecification tcpInputSpec = new InputSpecification.Builder()
-            .setRequiredSemanticTypes(Set.of("https://w3id.org/interactions/ontologies/xarm/v1#Movement"))
-            .setQualifiedMinCount(1)
-            .setQualifiedMaxCount(1)
-            .setInput(new InputSpecification.Builder()
-                    .setPath("https://w3id.org/interactions/ontologies/xarm/v1#hasSpeed")
-                    .setDataType("http://www.w3.org/2001/XMLSchema#integer")
-                    .setMinCount(1)
-                    .setMaxCount(1)
-                    .setMinInclusive(10.0)
-                    .setMaxInclusive(50.0)
-                    .build())
-            .setInput(new InputSpecification.Builder()
-                    .setQualifiedValueShape("http://example.org/gripperJointShape")
-                    .setPath("https://w3id.org/interactions/ontologies/xarm/v1#hasTarget")
-                    .setDataType("http://www.w3.org/2001/XMLSchema#string")
-                    .setMinCount(1)
-                    .setMaxCount(1)
-                    .build())
-            .build();
-     */
 
     String xarmJsonBindingClass = ApplicationJsonXArmBinding.class.getName();
     PayloadBindings.registerPayloadBinding(xarmJsonBindingClass);

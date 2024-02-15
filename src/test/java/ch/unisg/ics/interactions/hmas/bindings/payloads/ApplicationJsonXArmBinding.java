@@ -30,6 +30,7 @@ public class ApplicationJsonXArmBinding implements PayloadBinding {
     return SUPPORTED_MEDIA_TYPES;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Input bind(InputSpecification specification, Object data) {
     Set<String> semanticTypes = specification.getRequiredSemanticTypes();

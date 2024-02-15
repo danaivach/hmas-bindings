@@ -141,18 +141,13 @@ public class HttpBindingTest {
     Input primitiveInput = payloadBinding.bind(PRIMITIVE_INPUT_SPEC, 50);
     Action httpAction = protocolBinding.bind(HTTP_FORM);
 
-    /*
-    assertFalse(httpAction.getInput().isPresent());
-    httpAction.setInput(primitiveInput);
-    assertTrue(httpAction.getInput().isPresent());
-    assertEquals(primitiveInput, httpAction.getInput().get());
+    assertEquals(50, primitiveInput.getData());
 
     String expectedActionStr = "[Http Request] Method: PUT, Target: https://api.interactions.ics.unisg.ch/cherrybot/endpoint, " +
-            "Content-Type: application/xarm+json, Payload: 50";
+            "Content-Type: application/xarm+json";
 
     String actualActionStr = httpAction.toString();
     assertEquals(expectedActionStr, actualActionStr);
-     */
   }
 
   @Test
@@ -168,18 +163,13 @@ public class HttpBindingTest {
     Input input = payloadBinding.bind(COMPLEX_INPUT_SPEC, inputData);
     HttpAction httpAction = new HttpAction(HTTP_FORM);
 
-    /*
-    assertFalse(httpAction.getInput().isPresent());
-    httpAction.setInput(input);
-    assertTrue(httpAction.getInput().isPresent());
-    assertEquals(input, httpAction.getInput().get());
+    assertEquals("{\"name\":\"Danai\",\"email\":\"danaivach@example.org\"}", input.getData());
 
     String expectedActionStr = "[Http Request] Method: PUT, Target: https://api.interactions.ics.unisg.ch/cherrybot/endpoint, " +
-            "Content-Type: application/xarm+json, Payload: {\"name\":\"Danai\",\"email\":\"danaivach@example.org\"}";
+            "Content-Type: application/xarm+json";
 
     String actualActionStr = httpAction.toString();
     assertEquals(expectedActionStr, actualActionStr);
-     */
   }
 
 }

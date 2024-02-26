@@ -8,8 +8,10 @@ import ch.unisg.ics.interactions.hmas.bindings.payloads.PayloadBindings;
 import ch.unisg.ics.interactions.hmas.bindings.protocols.ProtocolBinding;
 import ch.unisg.ics.interactions.hmas.bindings.protocols.ProtocolBindings;
 import ch.unisg.ics.interactions.hmas.core.vocabularies.CORE;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.IntegerSpecification;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.QualifiedValueSpecification;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.StringSpecification;
 import ch.unisg.ics.interactions.hmas.interaction.signifiers.Form;
-import ch.unisg.ics.interactions.hmas.interaction.signifiers.InputSpecification;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.junit.jupiter.api.Test;
@@ -27,28 +29,22 @@ public class HttpBindingTest {
           .setContentType("application/xarm+json")
           .build();
 
-  InputSpecification PRIMITIVE_INPUT_SPEC = new InputSpecification.Builder()
-          .setRequiredSemanticTypes(Set.of("https://w3id.org/interactions/ontologies/xarm/v1#GripperJoint"))
-          .setDataType("http://www.w3.org/2001/XMLSchema#integer")
+  IntegerSpecification PRIMITIVE_INPUT_SPEC = new IntegerSpecification.Builder()
+          .addRequiredSemanticType("https://w3id.org/interactions/ontologies/xarm/v1#GripperJoint")
           .build();
 
-  InputSpecification COMPLEX_INPUT_SPEC = new InputSpecification.Builder()
-          .setRequiredSemanticTypes(Set.of(CORE.AGENT.stringValue()))
-          .setQualifiedValueShape("http://example.org/gripperJointShape")
-          .setQualifiedMinCount(1)
-          .setQualifiedMaxCount(1)
-          .setInput(new InputSpecification.Builder()
-                  .setPath("http://xmlns.com/foaf/0.1/name")
-                  .setDataType("http://www.w3.org/2001/XMLSchema#string")
-                  .setMinCount(1)
-                  .setMaxCount(1)
-                  .build())
-          .setInput(new InputSpecification.Builder()
-                  .setPath("http://xmlns.com/foaf/0.1/mbox")
-                  .setDataType("http://www.w3.org/2001/XMLSchema#string")
-                  .setMinCount(1)
-                  .setMaxCount(1)
-                  .build())
+  QualifiedValueSpecification COMPLEX_INPUT_SPEC = new QualifiedValueSpecification.Builder()
+          .addRequiredSemanticTypes(Set.of(CORE.AGENT.stringValue()))
+          .setIRIAsString("http://example.org/agent-details")
+          .setRequired(true)
+          .addPropertySpecification("http://xmlns.com/foaf/0.1/name",
+                  new StringSpecification.Builder()
+                          .setRequired(true)
+                          .build())
+          .addPropertySpecification("http://xmlns.com/foaf/0.1/mbox",
+                  new StringSpecification.Builder()
+                          .setRequired(true)
+                          .build())
           .build();
 
   @Test

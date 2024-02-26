@@ -4,9 +4,10 @@ import ch.unisg.ics.interactions.hmas.bindings.BindingNotFoundException;
 import ch.unisg.ics.interactions.hmas.bindings.BindingNotRegisteredException;
 import ch.unisg.ics.interactions.hmas.bindings.Input;
 import ch.unisg.ics.interactions.hmas.core.vocabularies.CORE;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.IntegerSpecification;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.QualifiedValueSpecification;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.StringSpecification;
 import ch.unisg.ics.interactions.hmas.interaction.signifiers.Form;
-import ch.unisg.ics.interactions.hmas.interaction.signifiers.InputSpecification;
-import ch.unisg.ics.interactions.hmas.interaction.signifiers.OutputSpecification;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -21,13 +22,10 @@ public class PayloadBindingTest {
   @Test
   void testBindApplicationJsonBinding() {
 
-    InputSpecification gripperJointInputSpec = new InputSpecification.Builder()
-            .setRequiredSemanticTypes(Set.of("https://w3id.org/interactions/ontologies/xarm/v1#GripperJoint"))
-            .setDataType("http://www.w3.org/2001/XMLSchema#integer")
-            .setMinCount(1)
-            .setMaxCount(1)
-            .setMinInclusive((double) 0)
-            .setMaxInclusive((double) 800)
+    IntegerSpecification gripperJointInputSpec = new IntegerSpecification.Builder()
+            .addRequiredSemanticType("https://w3id.org/interactions/ontologies/xarm/v1#GripperJoint")
+            .setMinInclusiveValue(0)
+            .setMaxInclusiveValue(800)
             .build();
 
     Form setGripperForm = new Form.Builder("https://api.interactions.ics.unisg.ch/cherrybot/gripper")
@@ -35,35 +33,26 @@ public class PayloadBindingTest {
             .setContentType("application/xarm+json")
             .build();
 
-    InputSpecification registerInputSpec = new InputSpecification.Builder()
-            .setRequiredSemanticTypes(Set.of(CORE.AGENT.stringValue()))
-            .setQualifiedValueShape("http://example.org/agent-details")
-            .setQualifiedMinCount(1)
-            .setQualifiedMaxCount(1)
-            .setInput(new InputSpecification.Builder()
-                    .setPath("http://xmlns.com/foaf/0.1/name")
-                    .setDataType("http://www.w3.org/2001/XMLSchema#string")
-                    .setMinCount(1)
-                    .setMaxCount(1)
-                    .build())
-            .setInput(new InputSpecification.Builder()
-                    .setPath("http://xmlns.com/foaf/0.1/mbox")
-                    .setDataType("http://www.w3.org/2001/XMLSchema#string")
-                    .setMinCount(1)
-                    .setMaxCount(1)
-                    .build())
+    QualifiedValueSpecification registerInputSpec = new QualifiedValueSpecification.Builder()
+            .addRequiredSemanticTypes(Set.of(CORE.AGENT.stringValue()))
+            .setIRIAsString("http://example.org/agent-details")
+            .setRequired(true)
+            .addPropertySpecification("http://xmlns.com/foaf/0.1/name",
+                    new StringSpecification.Builder()
+                            .setRequired(true)
+                            .build())
+            .addPropertySpecification("http://xmlns.com/foaf/0.1/mbox",
+                    new StringSpecification.Builder()
+                            .setRequired(true)
+                            .build())
             .build();
 
-    OutputSpecification registerOutputSpec = new OutputSpecification.Builder()
-            .setRequiredSemanticTypes(Set.of(CORE.AGENT.stringValue()))
-            .setQualifiedValueShape("http://example.org/registered-agent-details")
-            .setQualifiedMinCount(1)
-            .setQualifiedMaxCount(1)
-            .setOutput(new OutputSpecification.Builder()
-                    .setPath("http://xmlns.com/foaf/0.1/account")
-                    .setDataType("http://www.w3.org/2001/XMLSchema#string")
-                    .setMinCount(1)
-                    .setMaxCount(1)
+    QualifiedValueSpecification registerOutputSpec = new QualifiedValueSpecification.Builder()
+            .addRequiredSemanticType(CORE.AGENT.stringValue())
+            .setIRIAsString("http://example.org/registered-agent-details")
+            .setRequired(true)
+            .addPropertySpecification("http://xmlns.com/foaf/0.1/account", new StringSpecification.Builder()
+                    .setRequired(true)
                     .build())
             .build();
 

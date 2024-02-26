@@ -3,9 +3,8 @@ package ch.unisg.ics.interactions.hmas.bindings.payloads;
 import ch.unisg.ics.interactions.hmas.bindings.AbstractInput;
 import ch.unisg.ics.interactions.hmas.bindings.Input;
 import ch.unisg.ics.interactions.hmas.core.vocabularies.CORE;
-import ch.unisg.ics.interactions.hmas.interaction.signifiers.AbstractIOSpecification;
-import ch.unisg.ics.interactions.hmas.interaction.signifiers.InputSpecification;
-import ch.unisg.ics.interactions.hmas.interaction.signifiers.OutputSpecification;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.AbstractIOSpecification;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.IOSpecification;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -32,17 +31,17 @@ public class ApplicationJsonXArmBinding implements PayloadBinding {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Input bind(InputSpecification specification, Object data) {
-    Set<String> semanticTypes = specification.getRequiredSemanticTypes();
+  public Input bind(IOSpecification specification, Object data) {
+    Set<String> semanticTypes = ((AbstractIOSpecification) specification).getRequiredSemanticTypes();
 
     if (semanticTypes.contains("https://w3id.org/interactions/ontologies/xarm/v1#GripperJoint")) {
-      if (validate(specification, data)) {
+      if (validate((AbstractIOSpecification) specification, data)) {
         return new JsonInput(specification, data);
       }
     }
 
     if (semanticTypes.contains(CORE.AGENT.stringValue())) {
-      if (validate(specification, data)) {
+      if (validate((AbstractIOSpecification) specification, data)) {
         HashMap<String, String> agentDetails = (HashMap<String, String>) data;
         HashMap<String, String> boundAgentDetails = new HashMap<>();
 
@@ -58,8 +57,8 @@ public class ApplicationJsonXArmBinding implements PayloadBinding {
   }
 
   @Override
-  public Map<String, Object> unbind(OutputSpecification specification, Object data) {
-    Set<String> semanticTypes = specification.getRequiredSemanticTypes();
+  public Map<String, Object> unbind(IOSpecification specification, Object data) {
+    Set<String> semanticTypes = ((AbstractIOSpecification) specification).getRequiredSemanticTypes();
 
     if (semanticTypes.contains(CORE.AGENT.stringValue())) {
       JsonObject jsonObject = JsonParser.parseString((String) data).getAsJsonObject();
@@ -68,7 +67,7 @@ public class ApplicationJsonXArmBinding implements PayloadBinding {
       String accountId = jsonObject.get("account").getAsString();
       accountDetails.put("http://xmlns.com/foaf/0.1/account", accountId);
 
-      if (validate(specification, accountDetails)) {
+      if (validate((AbstractIOSpecification) specification, accountDetails)) {
         return accountDetails;
       }
     }
@@ -84,7 +83,7 @@ public class ApplicationJsonXArmBinding implements PayloadBinding {
 
   class JsonInput extends AbstractInput {
 
-    protected JsonInput(InputSpecification specification, Object data) {
+    protected JsonInput(IOSpecification specification, Object data) {
       super(specification, data);
     }
 

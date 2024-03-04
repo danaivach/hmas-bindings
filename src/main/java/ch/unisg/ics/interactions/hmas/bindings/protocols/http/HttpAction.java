@@ -78,9 +78,7 @@ public class HttpAction extends AbstractAction {
     if (this.request.getEntity() != null) {
       try {
         inputData = Optional.of(EntityUtils.toString(this.request.getEntity(), StandardCharsets.UTF_8));
-      } catch (IOException e) {
-        e.printStackTrace();
-      } catch (ParseException e) {
+      } catch (IOException | ParseException e) {
         e.printStackTrace();
       }
     }
@@ -88,9 +86,7 @@ public class HttpAction extends AbstractAction {
     if (response.getEntity() != null) {
       try {
         outputData = Optional.of(EntityUtils.toString(this.request.getEntity(), StandardCharsets.UTF_8));
-      } catch (IOException e) {
-        e.printStackTrace();
-      } catch (ParseException e) {
+      } catch (IOException | ParseException e) {
         e.printStackTrace();
       }
     }
@@ -112,16 +108,16 @@ public class HttpAction extends AbstractAction {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append("[Http Request] Method: " + request.getMethod());
+    builder.append("[Http Request] Method: ").append(request.getMethod());
     try {
-      builder.append(", Target: " + request.getUri().toString());
+      builder.append(", Target: ").append(request.getUri().toString());
       for (Header header : request.getHeaders()) {
-        builder.append(", " + header.getName() + ": " + header.getValue());
+        builder.append(", ").append(header.getName()).append(": ").append(header.getValue());
       }
       if (request.getEntity() != null) {
         StringWriter writer = new StringWriter();
         IOUtils.copy(request.getEntity().getContent(), writer, StandardCharsets.UTF_8.name());
-        builder.append(", Payload: " + writer);
+        builder.append(", Payload: ").append(writer);
       }
     } catch (UnsupportedOperationException | IOException | URISyntaxException e) {
       LOGGER.log(Level.WARNING, e.getMessage());

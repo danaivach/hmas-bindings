@@ -1,10 +1,10 @@
 package ch.unisg.ics.interactions.hmas.bindings;
 
-import ch.unisg.ics.interactions.hmas.interaction.signifiers.InputSpecification;
+import ch.unisg.ics.interactions.hmas.interaction.shapes.IOSpecification;
 
 public interface Input {
 
-  InputSpecification getInputSpecification();
+  IOSpecification getInputSpecification();
 
   Object getData();
 }

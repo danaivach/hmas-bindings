@@ -8,8 +8,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.danaivach:hmas-core:refactor~jitpack-SNAPSHOT'
-    implementation 'com.github.danaivach:hmas-interaction:refactor~jitpack-SNAPSHOT'
+    implementation 'com.github.danaivach:hmas-core:main-SNAPSHOT'
+    implementation 'com.github.danaivach:hmas-interaction:main-SNAPSHOT'
     implementation('org.eclipse.rdf4j:rdf4j-runtime:4.2.3@pom') {
         transitive = true
     }

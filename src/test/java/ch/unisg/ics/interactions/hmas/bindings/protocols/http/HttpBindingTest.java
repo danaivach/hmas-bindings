@@ -1,6 +1,7 @@
 package ch.unisg.ics.interactions.hmas.bindings.protocols.http;
 
 import ch.unisg.ics.interactions.hmas.bindings.Action;
+import ch.unisg.ics.interactions.hmas.bindings.ActionExecution;
 import ch.unisg.ics.interactions.hmas.bindings.Input;
 import ch.unisg.ics.interactions.hmas.bindings.payloads.ApplicationJsonXArmBinding;
 import ch.unisg.ics.interactions.hmas.bindings.payloads.PayloadBinding;
@@ -12,10 +13,11 @@ import ch.unisg.ics.interactions.hmas.interaction.shapes.IntegerSpecification;
 import ch.unisg.ics.interactions.hmas.interaction.shapes.QualifiedValueSpecification;
 import ch.unisg.ics.interactions.hmas.interaction.shapes.StringSpecification;
 import ch.unisg.ics.interactions.hmas.interaction.signifiers.Form;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Set;
@@ -50,6 +52,28 @@ public class HttpBindingTest {
   @Test
   void testHTTPProtocolBinding() {
 
+    Form form = new Form.Builder("http://example.org/")
+            .setMethodName("GET")
+            .setContentType("text/html")
+            .build();
+
+    ProtocolBinding httpBinding = ProtocolBindings.getBinding(form);
+
+    Action action = httpBinding.bind(form);
+
+    action.setActorId("http://example.org/agent");
+
+    try {
+      ActionExecution actionExec = action.execute();
+      assertTrue(actionExec.getOutputData().isPresent());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
+  void testHTTPActionExecution() {
+
     ProtocolBinding httpBinding = ProtocolBindings.getBinding(HTTP_FORM);
 
     assertEquals(2, httpBinding.getSupportedSchemes().size());
@@ -78,7 +102,7 @@ public class HttpBindingTest {
     assertEquals("http://hyperagent.org/example-agent", action.getActorId().get());
 
 
-    BasicClassicHttpRequest request = ((HttpAction) action).getRequest();
+    ClassicHttpRequest request = ((HttpAction) action).getRequest();
 
     assertEquals("PUT", request.getMethod());
     assertEquals(HTTP_FORM.getTarget(), request.getUri().toString());
@@ -97,7 +121,7 @@ public class HttpBindingTest {
   void testHTTPProtocolSetHeader() throws ProtocolException {
     HttpBinding httpBinding = new HttpBinding();
     HttpAction action = httpBinding.bind(HTTP_FORM);
-    BasicClassicHttpRequest request = action.getRequest();
+    ClassicHttpRequest request = action.getRequest();
 
     assertFalse(action.getActorId().isPresent());
     assertFalse(request.containsHeader("X-Agent-WebID"));

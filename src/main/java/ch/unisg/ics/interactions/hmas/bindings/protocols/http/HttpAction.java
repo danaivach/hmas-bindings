@@ -5,17 +5,13 @@ import ch.unisg.ics.interactions.hmas.bindings.ActionExecution;
 import ch.unisg.ics.interactions.hmas.bindings.Input;
 import ch.unisg.ics.interactions.hmas.interaction.signifiers.Form;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.http.HttpHeaders;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -29,7 +25,7 @@ public class HttpAction extends AbstractAction {
 
   private final static Logger LOGGER = Logger.getLogger(HttpAction.class.getCanonicalName());
 
-  private final BasicClassicHttpRequest request;
+  private final ClassicHttpRequest request;
 
   public HttpAction(Form form, String operationType) {
     super(form, operationType);
@@ -65,13 +61,12 @@ public class HttpAction extends AbstractAction {
   @Override
   public ActionExecution execute() throws IOException {
     HttpClient client = HttpClients.createDefault();
-    HttpUriRequest uriRequest = (HttpUriRequest) request;
-    BasicClassicHttpResponse response = (BasicClassicHttpResponse) client.execute(uriRequest);
+    ClassicHttpResponse response = (ClassicHttpResponse) client.execute(request);
 
     return getHttpActionExection(response);
   }
 
-  private HttpActionExecution getHttpActionExection(BasicClassicHttpResponse response) {
+  private HttpActionExecution getHttpActionExection(ClassicHttpResponse response) {
     Optional<String> inputData = Optional.empty();
     Optional<String> outputData = Optional.empty();
 
@@ -84,8 +79,9 @@ public class HttpAction extends AbstractAction {
     }
 
     if (response.getEntity() != null) {
+      System.out.println("not null");
       try {
-        outputData = Optional.of(EntityUtils.toString(this.request.getEntity(), StandardCharsets.UTF_8));
+        outputData = Optional.of(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
       } catch (IOException | ParseException e) {
         e.printStackTrace();
       }
@@ -142,7 +138,7 @@ public class HttpAction extends AbstractAction {
     return methodName;
   }
 
-  public BasicClassicHttpRequest getRequest() {
+  public ClassicHttpRequest getRequest() {
     return this.request;
   }
 }

@@ -79,7 +79,6 @@ public class HttpAction extends AbstractAction {
     }
 
     if (response.getEntity() != null) {
-      System.out.println("not null");
       try {
         outputData = Optional.of(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
       } catch (IOException | ParseException e) {
